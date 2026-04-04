@@ -154,7 +154,7 @@ function UI.CreateMinimapButton()
 
   local texture = btn:CreateTexture(nil, "BACKGROUND")
   texture:SetTexture("Interface\\Icons\\INV_Misc_Coin_01")
-  texture:SetTexCoord(0.06, 0.94, 0.06, 0.94)
+  texture:SetTexCoord(0.35, 0.95, 0.05, 0.65)
   texture:SetAllPoints(btn)
 
   local overlay = btn:CreateTexture(nil, "OVERLAY")
