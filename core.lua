@@ -27,7 +27,7 @@ end
 function C.RefreshGuildData()
   C.members = {}
 
-  local numMembers = GetNumGuildMembers()
+  local numMembers = GetNumGuildMembers(true)
   if not numMembers or numMembers == 0 then return end
 
   for i = 1, numMembers do
