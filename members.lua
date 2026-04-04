@@ -19,11 +19,13 @@ local TOOLBAR_HEIGHT = 30
 local STATUS_HEIGHT = 22
 
 local COLUMNS = {
-  { key = "class",  label = "Class",  width = 50,  align = "CENTER" },
-  { key = "name",   label = "Name",   width = 0,   align = "LEFT" },
-  { key = "dkp",    label = "DKP",    width = 80,  align = "RIGHT" },
-  { key = "online", label = "Status", width = 60,  align = "CENTER" },
+  { key = "class",  label = "Class",  width = 50 },
+  { key = "name",   label = "Name",   width = 190 },
+  { key = "dkp",    label = "DKP",    width = 80 },
+  { key = "online", label = "Status", width = 70 },
 }
+
+local COL_OFFSETS = { 4, 54, 244, 324 }
 
 local function CreateMemberRow(parent, id)
   local S = GuildKPInfo.Style
@@ -41,29 +43,29 @@ local function CreateMemberRow(parent, id)
   row.classIcon = row:CreateTexture(nil, "ARTWORK")
   row.classIcon:SetWidth(16)
   row.classIcon:SetHeight(16)
-  row.classIcon:SetPoint("CENTER", row, "LEFT", 25, 0)
+  row.classIcon:SetPoint("CENTER", row, "LEFT", COL_OFFSETS[1] + 23, 0)
   row.classIcon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 
   row.classText = row:CreateFontString(nil, "ARTWORK")
   S.SetFont(row.classText, 10)
-  row.classText:SetPoint("CENTER", row, "LEFT", 25, 0)
+  row.classText:SetPoint("CENTER", row, "LEFT", COL_OFFSETS[1] + 23, 0)
 
   row.nameText = row:CreateFontString(nil, "ARTWORK")
   S.SetFont(row.nameText, 11)
-  row.nameText:SetPoint("LEFT", row, "LEFT", 54, 0)
-  row.nameText:SetPoint("RIGHT", row, "RIGHT", -144, 0)
+  row.nameText:SetPoint("LEFT", row, "LEFT", COL_OFFSETS[2], 0)
+  row.nameText:SetPoint("RIGHT", row, "LEFT", COL_OFFSETS[2] + COLUMNS[2].width, 0)
   row.nameText:SetJustifyH("LEFT")
 
   row.dkpText = row:CreateFontString(nil, "ARTWORK")
   S.SetFont(row.dkpText, 11)
-  row.dkpText:SetPoint("RIGHT", row, "RIGHT", -64, 0)
-  row.dkpText:SetWidth(80)
+  row.dkpText:SetPoint("LEFT", row, "LEFT", COL_OFFSETS[3], 0)
+  row.dkpText:SetPoint("RIGHT", row, "LEFT", COL_OFFSETS[3] + COLUMNS[3].width, 0)
   row.dkpText:SetJustifyH("RIGHT")
 
   row.statusText = row:CreateFontString(nil, "ARTWORK")
   S.SetFont(row.statusText, 10)
-  row.statusText:SetPoint("RIGHT", row, "RIGHT", -4, 0)
-  row.statusText:SetWidth(56)
+  row.statusText:SetPoint("LEFT", row, "LEFT", COL_OFFSETS[4], 0)
+  row.statusText:SetPoint("RIGHT", row, "LEFT", COL_OFFSETS[4] + COLUMNS[4].width, 0)
   row.statusText:SetJustifyH("CENTER")
 
   row:SetScript("OnEnter", function()
@@ -83,22 +85,12 @@ local function CreateColumnHeaders(parent)
   local S = GuildKPInfo.Style
   M.headerButtons = {}
 
-  local x = 4
   for i = 1, table.getn(COLUMNS) do
     local col = COLUMNS[i]
     local btn = CreateFrame("Button", "GKPIHeader" .. col.key, parent)
     btn:SetHeight(HEADER_HEIGHT)
-    btn:SetPoint("TOPLEFT", parent, "TOPLEFT", x, -TOOLBAR_HEIGHT - 4)
-
-    if col.width > 0 then
-      btn:SetWidth(col.width)
-    else
-      local remaining = (parent:GetWidth() or 480) - 4 - x - 16
-      for j = i + 1, table.getn(COLUMNS) do
-        remaining = remaining - COLUMNS[j].width
-      end
-      btn:SetWidth(math.max(remaining, 100))
-    end
+    btn:SetWidth(col.width)
+    btn:SetPoint("TOPLEFT", parent, "TOPLEFT", COL_OFFSETS[i], -TOOLBAR_HEIGHT - 4)
 
     S.CreateBackdrop(btn, nil, true)
 
@@ -130,7 +122,6 @@ local function CreateColumnHeaders(parent)
       M.RefreshList()
     end)
 
-    x = x + (col.width > 0 and col.width or 100)
     M.headerButtons[col.key] = btn
   end
 end
@@ -140,11 +131,11 @@ local function InitClassDropdown(dropdown)
 
   UIDropDownMenu_Initialize(dropdown, function()
     local info = {}
-    info.text = "Todas"
+    info.text = "All"
     info.checked = (M.classFilter == "ALL")
     info.func = function()
       M.classFilter = "ALL"
-      UIDropDownMenu_SetText("Todas", dropdown)
+      UIDropDownMenu_SetText("All", dropdown)
       CloseDropDownMenus()
       M.RefreshList()
     end
@@ -245,7 +236,7 @@ function M.RefreshList()
 
   if M.statusText then
     M.statusText:SetText(
-      table.getn(members) .. " miembros | Total DKP: " .. totalDKP .. " | En linea: " .. onlineCount
+      table.getn(members) .. " members | Total DKP: " .. totalDKP .. " | Online: " .. onlineCount
     )
   end
 
@@ -292,7 +283,7 @@ function M.CreateTab(parent)
   placeholder:SetPoint("RIGHT", searchBox, "RIGHT", -6, 0)
   placeholder:SetJustifyH("LEFT")
   placeholder:SetTextColor(0.5, 0.5, 0.5, 1)
-  placeholder:SetText("Buscar miembro...")
+  placeholder:SetText("Search member...")
 
   searchBox:SetScript("OnTextChanged", function()
     local text = this:GetText()

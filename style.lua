@@ -34,7 +34,7 @@ S.CLASS_ICONS = {
   HUNTER  = "Interface\\Icons\\INV_Weapon_Bow_07",
   SHAMAN  = "Interface\\Icons\\INV_Jewelry_Talisman_04",
   PRIEST  = "Interface\\Icons\\INV_Staff_30",
-  WARLOCK = "Interface\\Icons\\INV_Staff_20",
+  WARLOCK = "Interface\\Icons\\INV_Staff_17",
   PALADIN = "Interface\\Icons\\INV_Hammer_01",
 }
 

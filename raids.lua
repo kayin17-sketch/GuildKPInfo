@@ -160,7 +160,7 @@ function R.RefreshList()
   if R.statusText then
     local totalRaids = table.getn(db.raids)
     R.statusText:SetText(
-      totalRaids .. " raids | " .. totalItems .. " items | Total gastado: " .. totalDKP .. " DKP"
+      totalRaids .. " raids | " .. totalItems .. " items | Total spent: " .. totalDKP .. " DKP"
     )
   end
 
@@ -225,7 +225,7 @@ function R.CreateTab(parent)
   exportBtn:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, -4)
   exportBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -8, -4)
   exportBtn:SetHeight(22)
-  exportBtn:SetText("Exportar Log")
+  exportBtn:SetText("Export Log")
   S.SkinButton(exportBtn)
   exportBtn:SetScript("OnClick", function()
     R.ExportLog()
