@@ -7,6 +7,25 @@ C.members = {}
 C.activeRaid = nil
 C.inRaid = false
 
+local RAID_ZONES = {
+  ["Molten Core"] = true,
+  ["Blackwing Lair"] = true,
+  ["Onyxia's Lair"] = true,
+  ["Zul'Gurub"] = true,
+  ["Ruins of Ahn'Qiraj"] = true,
+  ["Ahn'Qiraj Temple"] = true,
+  ["Naxxramas"] = true,
+  ["Karazhan"] = true,
+  ["Gruul's Lair"] = true,
+  ["Magtheridon's Lair"] = true,
+  ["Serpentshrine Cavern"] = true,
+  ["The Eye"] = true,
+  ["Mount Hyjal"] = true,
+  ["Black Temple"] = true,
+  ["Sunwell Plateau"] = true,
+  ["Zul'Aman"] = true,
+}
+
 local DKP_PATTERN = "<(%d%d%d%d%d)>"
 
 local function ExtractItemInfo(link)
@@ -168,11 +187,37 @@ function C.ParseRaidChat(msg, sender)
     itemLink = msg
   }
 
-  if C.activeRaid then
-    C.activeRaid.items[table.getn(C.activeRaid.items) + 1] = entry
-  end
+  if not C.activeRaid then return nil end
+
+  C.activeRaid.items[table.getn(C.activeRaid.items) + 1] = entry
 
   return entry
+end
+
+local RAID_ZONES = {
+  ["Zul'Gurub"] = true,
+  ["Molten Core"] = true,
+  ["Blackwing Lair"] = true,
+  ["Onyxia's Lair"] = true,
+  ["Ruins of Ahn'Qiraj"] = true,
+  ["Ahn'Qiraj"] = true,
+  ["Temple of Ahn'Qiraj"] = true,
+  ["Naxxramas"] = true,
+  ["Karazhan"] = true,
+  ["Gruul's Lair"] = true,
+  ["Magtheridon's Lair"] = true,
+  ["Serpentshrine Cavern"] = true,
+  ["The Eye"] = true,
+  ["The Battle for Mount Hyjal"] = true,
+  ["Mount Hyjal"] = true,
+  ["Black Temple"] = true,
+  ["Sunwell Plateau"] = true,
+  ["Zul'Aman"] = true,
+}
+
+function C.IsInRaidZone()
+  local zone = GetRealZoneText()
+  return zone and RAID_ZONES[zone] or false
 end
 
 function C.StartRaid()
@@ -210,7 +255,7 @@ end
 function C.CheckRaidStatus()
   local numRaid = GetNumRaidMembers()
   if numRaid and numRaid > 0 then
-    if not C.inRaid then
+    if not C.inRaid and C.IsInRaidZone() then
       C.StartRaid()
     end
   else
