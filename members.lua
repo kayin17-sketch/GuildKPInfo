@@ -324,25 +324,27 @@ function M.CreateTab(parent)
   InitClassDropdown(classDropdown)
   M.classDropdown = classDropdown
 
-  local onlineCb = CreateFrame("CheckButton", "GKPIOnlineFilter", frame, "UICheckButtonTemplate")
-  onlineCb:SetPoint("LEFT", classDropdown, "RIGHT", -15, 2)
-  onlineCb:SetWidth(20)
-  onlineCb:SetHeight(20)
-  onlineCb:SetHitRectInsets(0, -50, 0, 0)
-  onlineCb:SetChecked(M.onlineOnly)
-  S.SkinButton(onlineCb, 0.3, 1.0, 0.8)
+  local onlineBtn = CreateFrame("Button", "GKPIOnlineFilter", frame, "UIPanelButtonTemplate")
+  onlineBtn:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -8, -4)
+  onlineBtn:SetWidth(60)
+  onlineBtn:SetHeight(20)
+  S.SkinButton(onlineBtn, 0.3, 1.0, 0.8)
 
-  onlineCb.text = onlineCb:CreateFontString(nil, "ARTWORK")
-  S.SetFont(onlineCb.text, 10)
-  onlineCb.text:SetPoint("LEFT", onlineCb, "RIGHT", 4, 0)
-  onlineCb.text:SetText("Online")
-  onlineCb.text:SetTextColor(S.COLORS.text[1], S.COLORS.text[2], S.COLORS.text[3], 1)
+  local function UpdateOnlineBtnText()
+    if M.onlineOnly then
+      onlineBtn:SetText("Online")
+    else
+      onlineBtn:SetText("All")
+    end
+  end
+  UpdateOnlineBtnText()
 
-  onlineCb:SetScript("OnClick", function()
-    M.onlineOnly = this:GetChecked() == 1
+  onlineBtn:SetScript("OnClick", function()
+    M.onlineOnly = not M.onlineOnly
     if GuildKPInfoDB then
       GuildKPInfoDB.onlineOnly = M.onlineOnly
     end
+    UpdateOnlineBtnText()
     M.RefreshList()
   end)
 
