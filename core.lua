@@ -57,7 +57,7 @@ function C.RefreshGuildData()
   end
 end
 
-function C.GetFilteredMembers(searchText, classFilter)
+function C.GetFilteredMembers(searchText, classFilter, onlineOnly)
   local result = {}
   local search = ""
   if searchText then
@@ -68,10 +68,9 @@ function C.GetFilteredMembers(searchText, classFilter)
   for i = 1, table.getn(C.members) do
     local m = C.members[i]
 
-    if filterClass and m.class ~= filterClass then
-      -- skip
+    if onlineOnly and not m.online then
+    elseif filterClass and m.class ~= filterClass then
     elseif search ~= "" and not strfind(strlower(m.name), search, 1, true) then
-      -- skip
     else
       result[table.getn(result) + 1] = m
     end

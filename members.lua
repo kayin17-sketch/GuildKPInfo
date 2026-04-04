@@ -83,7 +83,8 @@ end
 
 local function CreateColumnHeaders(parent)
   local S = GuildKPInfo.Style
-  M.headerButtons = {}
+M.headerButtons = {}
+M.onlineOnly = false
 
   for i = 1, table.getn(COLUMNS) do
     local col = COLUMNS[i]
@@ -168,7 +169,7 @@ function M.RefreshList()
   local listArea = M.listArea
   if not listArea then return end
 
-  local members = Core.GetFilteredMembers(M.searchText, M.classFilter)
+  local members = Core.GetFilteredMembers(M.searchText, M.classFilter, M.onlineOnly)
   Core.SortMembers(members, M.sortColumn, M.sortDirection)
   M.list = members
 
@@ -317,11 +318,33 @@ function M.CreateTab(parent)
 
   local classDropdown = CreateFrame("Frame", "GKPIClassFilter", frame, "UIDropDownMenuTemplate")
   classDropdown:SetPoint("TOPLEFT", frame, "TOP", 10, -2)
-  classDropdown:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -8, -2)
+  classDropdown:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -130, -2)
   UIDropDownMenu_SetWidth(120, classDropdown)
-  UIDropDownMenu_SetText("Todas", classDropdown)
+  UIDropDownMenu_SetText("All", classDropdown)
   InitClassDropdown(classDropdown)
   M.classDropdown = classDropdown
+
+  local onlineCb = CreateFrame("CheckButton", "GKPIOnlineFilter", frame, "UICheckButtonTemplate")
+  onlineCb:SetPoint("LEFT", classDropdown, "RIGHT", -15, 2)
+  onlineCb:SetWidth(20)
+  onlineCb:SetHeight(20)
+  onlineCb:SetHitRectInsets(0, -50, 0, 0)
+  onlineCb:SetChecked(M.onlineOnly)
+  S.SkinButton(onlineCb, 0.3, 1.0, 0.8)
+
+  onlineCb.text = onlineCb:CreateFontString(nil, "ARTWORK")
+  S.SetFont(onlineCb.text, 10)
+  onlineCb.text:SetPoint("LEFT", onlineCb, "RIGHT", 4, 0)
+  onlineCb.text:SetText("Online")
+  onlineCb.text:SetTextColor(S.COLORS.text[1], S.COLORS.text[2], S.COLORS.text[3], 1)
+
+  onlineCb:SetScript("OnClick", function()
+    M.onlineOnly = this:GetChecked() == 1
+    if GuildKPInfoDB then
+      GuildKPInfoDB.onlineOnly = M.onlineOnly
+    end
+    M.RefreshList()
+  end)
 
   CreateColumnHeaders(frame)
 
@@ -359,5 +382,6 @@ function M.RestoreSettings()
     M.sortColumn = GuildKPInfoDB.sortColumn or "dkp"
     M.sortDirection = GuildKPInfoDB.sortDirection or "desc"
     M.classFilter = GuildKPInfoDB.classFilter or "ALL"
+    M.onlineOnly = GuildKPInfoDB.onlineOnly or false
   end
 end
