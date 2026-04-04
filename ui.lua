@@ -177,21 +177,23 @@ function UI.CreateMinimapButton()
   end)
 
   btn:SetScript("OnDragStart", function()
-    this:StartMoving()
     this.isDragging = true
   end)
-  btn:SetScript("OnDragStop", function()
-    this:StopMovingOrSizing()
-    this.isDragging = false
-
+  btn:SetScript("OnUpdate", function()
+    if not this.isDragging then return end
     local mx, my = Minimap:GetCenter()
-    local bx, by = this:GetCenter()
-    local angle = math.atan2(by - my, bx - mx) * 180 / math.pi
-
+    local scale = Minimap:GetEffectiveScale() or 1
+    local cx, cy = GetCursorPosition()
+    cx = cx / scale
+    cy = cy / scale
+    local angle = math.atan2(cy - my, cx - mx) * 180 / math.pi
     if GuildKPInfoDB then
       GuildKPInfoDB.minimapAngle = angle
     end
     UpdateMinimapPosition()
+  end)
+  btn:SetScript("OnDragStop", function()
+    this.isDragging = false
   end)
 
   UI.minimapButton = btn
