@@ -43,7 +43,25 @@ local function OnEnterWorld()
   eventFrame:RegisterEvent("CHAT_MSG_RAID_LEADER")
   eventFrame:RegisterEvent("CHAT_MSG_RAID_WARNING")
 
-  GuildRoster()
+  local initialRefresh = CreateFrame("Frame", nil, UIParent)
+  initialRefresh.elapsed = 0
+  initialRefresh:SetScript("OnUpdate", function()
+    this.elapsed = this.elapsed + arg1
+    if this.elapsed >= 5 then
+      this:SetScript("OnUpdate", nil)
+      GuildRoster()
+    end
+  end)
+
+  local autoRefresh = CreateFrame("Frame", "GKPIAutoRefresh", UIParent)
+  autoRefresh.elapsed = 0
+  autoRefresh:SetScript("OnUpdate", function()
+    this.elapsed = this.elapsed + arg1
+    if this.elapsed >= 300 then
+      this.elapsed = 0
+      GuildRoster()
+    end
+  end)
 end
 
 local function OnGuildUpdate()
