@@ -238,8 +238,7 @@ function R.CreateTab(parent)
 
   R.scrollSlider = S.SkinScrollBar(nil, listArea)
 
-  return frame
-end
+  local statusBar = CreateFrame("Frame", "GKPIRaidsStatus", frame)
   statusBar:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 4, 4)
   statusBar:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -4, 4)
   statusBar:SetHeight(STATUS_HEIGHT)
@@ -254,3 +253,4 @@ end
   R.statusText = statusText
 
   return frame
+end
