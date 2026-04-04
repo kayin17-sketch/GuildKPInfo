@@ -59,7 +59,10 @@ end
 
 function C.GetFilteredMembers(searchText, classFilter)
   local result = {}
-  local search = searchText and strlower(strtrim(searchText)) or ""
+  local search = ""
+  if searchText then
+    search = strlower(gsub(searchText, "^%s*(.-)%s*$", "%1"))
+  end
   local filterClass = classFilter and classFilter ~= "ALL" and classFilter or nil
 
   for i = 1, table.getn(C.members) do
