@@ -14,7 +14,6 @@ local MAIN_HEIGHT = 450
 local TITLE_HEIGHT = 25
 local TAB_HEIGHT = 22
 local MINIMAP_RADIUS = 80
-local MINIMAP_BUTTON_SIZE = 33
 
 local function UpdateMinimapPosition()
   if not UI.minimapButton then return end
@@ -144,23 +143,25 @@ function UI.CreateMinimapButton()
   if UI.minimapButton then return end
 
   local btn = CreateFrame("Button", "GKPIMinimapButton", Minimap)
-  btn:SetWidth(MINIMAP_BUTTON_SIZE)
-  btn:SetHeight(MINIMAP_BUTTON_SIZE)
+  btn:SetWidth(32)
+  btn:SetHeight(32)
   btn:SetFrameStrata("MEDIUM")
   btn:SetFrameLevel(8)
-  btn:EnableMouse(true)
   btn:RegisterForClicks("LeftButtonUp")
   btn:RegisterForDrag("LeftButton")
-
-  local texture = btn:CreateTexture(nil, "BACKGROUND")
-  texture:SetTexture("Interface\\Icons\\INV_Misc_Coin_01")
-  texture:SetTexCoord(0.0, 0.55, 0.0, 0.55)
-  texture:SetAllPoints(btn)
+  btn:SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
 
   local overlay = btn:CreateTexture(nil, "OVERLAY")
+  overlay:SetWidth(53)
+  overlay:SetHeight(53)
   overlay:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
-  overlay:SetPoint("TOPLEFT", btn, "TOPLEFT", -3, 3)
-  overlay:SetPoint("BOTTOMRIGHT", btn, "BOTTOMRIGHT", 3, -3)
+  overlay:SetPoint("TOPLEFT", btn, "TOPLEFT", 0, 0)
+
+  local icon = btn:CreateTexture(nil, "BACKGROUND")
+  icon:SetWidth(20)
+  icon:SetHeight(20)
+  icon:SetTexture("Interface\\Icons\\INV_Helmet_13")
+  icon:SetPoint("CENTER", btn, "CENTER", 0, 0)
 
   btn:SetScript("OnEnter", function()
     GameTooltip:SetOwner(this, "ANCHOR_LEFT")
