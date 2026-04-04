@@ -1,0 +1,14 @@
+## Interface: 11200
+## Title: |cff33ffccGuild|cffffffffKPInfo
+## Notes: Guild DKP Tracker & Raid Loot Logger
+## Author: Kayin
+## Version: 1.0.0
+## SavedVariables: GuildKPInfoDB
+## OptionalDeps: pfUI
+
+style.lua
+core.lua
+members.lua
+raids.lua
+ui.lua
+guildkpinfo.lua
