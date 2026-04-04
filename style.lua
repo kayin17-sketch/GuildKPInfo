@@ -203,7 +203,7 @@ function S.SkinInputBox(editbox)
   S.SetFont(editbox)
 end
 
-function S.SkinScrollBar(scrollChild, parent)
+function S.SkinScrollBar(_, parent)
   local slider = CreateFrame("Slider", nil, parent)
   slider:SetOrientation("VERTICAL")
   slider:SetPoint("TOPLEFT", parent, "TOPRIGHT", -7, 0)

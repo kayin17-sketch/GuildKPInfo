@@ -158,9 +158,9 @@ function R.RefreshList()
   end
 
   if R.statusText then
-    local totalRaids = table.getn(db.raids)
+    local totalRaids, allItems, allDKP = GuildKPInfo.Core.GetRaidStats()
     R.statusText:SetText(
-      totalRaids .. " raids | " .. totalItems .. " items | Total spent: " .. totalDKP .. " DKP"
+      totalRaids .. " raids | " .. allItems .. " items | Total spent: " .. allDKP .. " DKP"
     )
   end
 

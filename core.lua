@@ -7,25 +7,6 @@ C.members = {}
 C.activeRaid = nil
 C.inRaid = false
 
-local RAID_ZONES = {
-  ["Molten Core"] = true,
-  ["Blackwing Lair"] = true,
-  ["Onyxia's Lair"] = true,
-  ["Zul'Gurub"] = true,
-  ["Ruins of Ahn'Qiraj"] = true,
-  ["Ahn'Qiraj Temple"] = true,
-  ["Naxxramas"] = true,
-  ["Karazhan"] = true,
-  ["Gruul's Lair"] = true,
-  ["Magtheridon's Lair"] = true,
-  ["Serpentshrine Cavern"] = true,
-  ["The Eye"] = true,
-  ["Mount Hyjal"] = true,
-  ["Black Temple"] = true,
-  ["Sunwell Plateau"] = true,
-  ["Zul'Aman"] = true,
-}
-
 local DKP_PATTERN = "<(%d%d%d%d%d)>"
 
 local function ExtractItemInfo(link)
@@ -176,6 +157,8 @@ function C.ParseRaidChat(msg, sender)
     player = mentionedPlayer
   end
 
+  local _, _, link = strfind(msg, "(|Hitem:.-|h%[.-%]|h)")
+
   local entry = {
     itemName = itemName,
     itemID = itemID,
@@ -184,7 +167,7 @@ function C.ParseRaidChat(msg, sender)
     dkp = dkp,
     time = date("%H:%M:%S"),
     sender = sender or "",
-    itemLink = msg
+    itemLink = link or msg
   }
 
   if not C.activeRaid then return nil end

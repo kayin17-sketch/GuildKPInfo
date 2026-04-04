@@ -173,6 +173,9 @@ function M.RefreshList()
   Core.SortMembers(members, M.sortColumn, M.sortDirection)
   M.list = members
 
+  local maxScroll = math.max(0, table.getn(members) * ROW_HEIGHT - (listArea:GetHeight() or 300))
+  if M.scrollOffset > maxScroll then M.scrollOffset = maxScroll end
+
   local areaHeight = listArea:GetHeight() or 300
   local maxVisible = math.floor(areaHeight / ROW_HEIGHT)
   if maxVisible < 1 then maxVisible = 1 end

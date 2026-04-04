@@ -225,7 +225,7 @@ function UI.CreateMainWindow()
     this:StopMovingOrSizing()
   end)
 
-  tinsert(UISpecialFrames, "GKPIMainFrame")
+  UISpecialFrames[table.getn(UISpecialFrames) + 1] = "GKPIMainFrame"
 
   CreateTitleBar(frame)
   CreateTabButtons(frame)
