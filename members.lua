@@ -280,7 +280,7 @@ function M.CreateTab(parent)
 
   local searchBox = CreateFrame("EditBox", "GKPISearchBox", frame)
   searchBox:SetPoint("TOPLEFT", frame, "TOPLEFT", 8, -6)
-  searchBox:SetPoint("TOPRIGHT", frame, "TOP", -10, -6)
+  searchBox:SetPoint("TOPRIGHT", frame, "TOP", -35, -6)
   searchBox:SetHeight(20)
   S.SkinInputBox(searchBox)
   searchBox:SetAutoFocus(false)
@@ -309,6 +309,19 @@ function M.CreateTab(parent)
     if not this:GetText() or strlen(this:GetText()) == 0 then
       placeholder:Show()
     end
+  end)
+
+  local scanBtn = CreateFrame("Button", "GKPIScanBtn", frame, "UIPanelButtonTemplate")
+  scanBtn:SetPoint("LEFT", searchBox, "RIGHT", 4, 0)
+  scanBtn:SetPoint("TOP", frame, "TOP", 0, -5)
+  scanBtn:SetWidth(24)
+  scanBtn:SetHeight(20)
+  scanBtn:SetText("R")
+  S.SkinButton(scanBtn, 0.3, 1.0, 0.8)
+  scanBtn:SetScript("OnClick", function()
+    GuildRoster()
+    GuildKPInfo.Core.RefreshGuildData()
+    M.RefreshList()
   end)
 
   local classDropdown = CreateFrame("Frame", "GKPIClassFilter", frame, "UIDropDownMenuTemplate")

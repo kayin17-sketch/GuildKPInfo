@@ -186,12 +186,13 @@ function S.SkinCloseButton(button, parent, ox, oy)
     button:SetPoint("TOPRIGHT", parent, "TOPRIGHT", ox or -2, oy or -2)
   end
 
-  if not button.texture then
-    button.texture = button:CreateTexture(nil, "ARTWORK")
+  if not button.xText then
+    button.xText = button:CreateFontString(nil, "ARTWORK")
   end
-  button.texture:SetTexture("Interface\\Buttons\\UI-StopButton")
-  button.texture:SetAllPoints(button)
-  button.texture:SetVertexColor(1, 0.25, 0.25, 1)
+  button.xText:SetAllPoints(button)
+  button.xText:SetFont(S.fontPath, 12, "OUTLINE")
+  button.xText:SetText("X")
+  button.xText:SetTextColor(1, 0.25, 0.25, 1)
 end
 
 function S.SkinInputBox(editbox)
