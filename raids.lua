@@ -57,10 +57,11 @@ end
 local function CreateItemRow(parent, id)
   local S = GuildKPInfo.Style
 
-  local row = CreateFrame("Frame", "GKPIRaidItem" .. id, parent)
+  local row = CreateFrame("Button", "GKPIRaidItem" .. id, parent)
   row:SetHeight(ITEM_ROW_HEIGHT)
   row:SetPoint("LEFT", parent, "LEFT", 24, 0)
   row:SetPoint("RIGHT", parent, "RIGHT", -20, 0)
+  row:EnableMouse(true)
   row:Hide()
 
   row.itemText = row:CreateFontString(nil, "ARTWORK")
@@ -81,6 +82,28 @@ local function CreateItemRow(parent, id)
   row.dkpText:SetWidth(64)
   row.dkpText:SetJustifyH("RIGHT")
   row.dkpText:SetTextColor(1, 0.82, 0, 1)
+
+  local function ShowItemTooltip(anchor)
+    if not this.itemLink then return end
+    GameTooltip:SetOwner(this, anchor)
+    GameTooltip:SetHyperlink(this.itemLink)
+    GameTooltip:AddLine(" ", 1, 1, 1)
+    GameTooltip:AddLine("|cff33ffccGuildKPInfo|r", 0.2, 1.0, 0.8)
+    GameTooltip:AddDoubleLine("Won by:", "|cffffffff" .. (this.tooltipPlayer or "?") .. "|r", 0.6, 0.6, 0.6, 1, 1, 1)
+    GameTooltip:AddDoubleLine("DKP paid:", "|cffffd100" .. (this.tooltipDKP or 0) .. "|r", 0.6, 0.6, 0.6, 1, 0.82, 0)
+    GameTooltip:Show()
+  end
+
+  row:RegisterForClicks("LeftButtonUp")
+  row:SetScript("OnClick", function()
+    ShowItemTooltip("ANCHOR_CURSOR")
+  end)
+  row:SetScript("OnEnter", function()
+    ShowItemTooltip("ANCHOR_RIGHT")
+  end)
+  row:SetScript("OnLeave", function()
+    GameTooltip:Hide()
+  end)
 
   return row
 end
@@ -173,6 +196,9 @@ function R.RefreshList()
             end
             local itemRow = rf.itemRows[j]
             itemRow:SetPoint("TOP", listArea, "TOP", 0, -itemY)
+            itemRow.itemLink = item.itemLink
+            itemRow.tooltipPlayer = item.player
+            itemRow.tooltipDKP = item.dkp
 
             local _, _, _, qualityHex = S.GetItemQualityColor(item.quality)
             itemRow.itemText:SetText(qualityHex .. "[" .. item.itemName .. "]|r")
