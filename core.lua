@@ -224,15 +224,22 @@ end
 function C.EndRaid()
   if not C.activeRaid then return end
 
-  local db = GuildKPInfoDB
-  if not db or not db.raids then return end
+  local numItems = 0
+  if C.activeRaid.items then
+    numItems = table.getn(C.activeRaid.items)
+  end
 
-  db.raids[table.getn(db.raids) + 1] = {
-    date = C.activeRaid.date,
-    startTime = C.activeRaid.startTime,
-    zone = C.activeRaid.zone,
-    items = C.activeRaid.items
-  }
+  if numItems > 0 then
+    local db = GuildKPInfoDB
+    if db and db.raids then
+      db.raids[table.getn(db.raids) + 1] = {
+        date = C.activeRaid.date,
+        startTime = C.activeRaid.startTime,
+        zone = C.activeRaid.zone,
+        items = C.activeRaid.items
+      }
+    end
+  end
 
   C.activeRaid = nil
   C.inRaid = false
@@ -255,14 +262,17 @@ function C.GetRaidStats()
   local db = GuildKPInfoDB
   if not db or not db.raids then return 0, 0, 0 end
 
-  local totalRaids = table.getn(db.raids)
+  local totalRaids = 0
   local totalItems = 0
   local totalDKP = 0
 
-  for i = 1, totalRaids do
+  for i = 1, table.getn(db.raids) do
     local raid = db.raids[i]
-    if raid.items then
-      for j = 1, table.getn(raid.items) do
+    local numItems = 0
+    if raid.items then numItems = table.getn(raid.items) end
+    if numItems > 0 then
+      totalRaids = totalRaids + 1
+      for j = 1, numItems do
         totalItems = totalItems + 1
         totalDKP = totalDKP + (raid.items[j].dkp or 0)
       end
