@@ -103,58 +103,96 @@ function R.RefreshList()
     end
   end
 
-  local y = 0
-  local totalItems = 0
-  local totalDKP = 0
+  local scrollOffset = listArea.scrollOffset or 0
+  local visibleHeight = listArea:GetHeight() or 300
+  local numRaids = table.getn(db.raids)
 
-  for i = table.getn(db.raids), 1, -1 do
+  local totalContentHeight = 0
+  local raidLayout = {}
+
+  for i = numRaids, 1, -1 do
     local raid = db.raids[i]
     local numItems = CountRaidItems(raid)
     local isExpanded = R.expandedRaids[i]
-
-    if not R.raidFrames[i] then
-      R.raidFrames[i] = {
-        header = CreateRaidHeader(listArea, i),
-        itemRows = {}
-      }
-    end
-
-    local rf = R.raidFrames[i]
-    local header = rf.header
-
-    header:SetPoint("TOP", listArea, "TOP", 0, -y)
-    header.text:SetText(raid.date .. " - " .. raid.zone .. " (" .. numItems .. " items)")
-    header.expandIcon:SetText(isExpanded and "|cff33ffccv|r" or "|cff33ffcc>|r")
-    header.raidIndex = i
-    header:SetScript("OnClick", function()
-      local idx = this.raidIndex
-      R.expandedRaids[idx] = not R.expandedRaids[idx]
-      R.RefreshList()
-    end)
-    header:Show()
-    y = y + RAID_HEADER_HEIGHT
-
+    local raidHeight = RAID_HEADER_HEIGHT
     if isExpanded and raid.items then
-      for j = 1, numItems do
-        local item = raid.items[j]
-        if not rf.itemRows[j] then
-          rf.itemRows[j] = CreateItemRow(listArea, i .. "_" .. j)
+      raidHeight = raidHeight + numItems * ITEM_ROW_HEIGHT
+    end
+    raidLayout[i] = {
+      top = totalContentHeight,
+      height = raidHeight,
+      numItems = numItems,
+      isExpanded = isExpanded
+    }
+    totalContentHeight = totalContentHeight + raidHeight
+  end
+
+  for i = numRaids, 1, -1 do
+    local raid = db.raids[i]
+    local layout = raidLayout[i]
+    local raidTop = layout.top
+    local raidBottom = raidTop + layout.height
+
+    if raidBottom <= scrollOffset or raidTop >= scrollOffset + visibleHeight then
+      -- skip
+    else
+      if not R.raidFrames[i] then
+        R.raidFrames[i] = {
+          header = CreateRaidHeader(listArea, i),
+          itemRows = {}
+        }
+      end
+
+      local rf = R.raidFrames[i]
+      local header = rf.header
+      local y = raidTop - scrollOffset
+
+      header:SetPoint("TOP", listArea, "TOP", 0, -y)
+      header.text:SetText(raid.date .. " - " .. raid.zone .. " (" .. layout.numItems .. " items)")
+      header.expandIcon:SetText(layout.isExpanded and "|cff33ffccv|r" or "|cff33ffcc>|r")
+      header.raidIndex = i
+      header:SetScript("OnClick", function()
+        local idx = this.raidIndex
+        R.expandedRaids[idx] = not R.expandedRaids[idx]
+        R.RefreshList()
+      end)
+
+      if y >= -RAID_HEADER_HEIGHT and y < visibleHeight then
+        header:Show()
+      else
+        header:Hide()
+      end
+
+      if layout.isExpanded and raid.items then
+        local itemY = y + RAID_HEADER_HEIGHT
+        for j = 1, layout.numItems do
+          if itemY >= -ITEM_ROW_HEIGHT and itemY < visibleHeight then
+            local item = raid.items[j]
+            if not rf.itemRows[j] then
+              rf.itemRows[j] = CreateItemRow(listArea, i .. "_" .. j)
+            end
+            local itemRow = rf.itemRows[j]
+            itemRow:SetPoint("TOP", listArea, "TOP", 0, -itemY)
+
+            local _, _, _, qualityHex = S.GetItemQualityColor(item.quality)
+            itemRow.itemText:SetText(qualityHex .. "[" .. item.itemName .. "]|r")
+            itemRow.playerText:SetText("|cffffffff-> " .. item.player .. "|r")
+            itemRow.dkpText:SetText(tostring(item.dkp) .. " DKP")
+
+            itemRow:Show()
+          else
+            if rf.itemRows[j] then
+              rf.itemRows[j]:Hide()
+            end
+          end
+          itemY = itemY + ITEM_ROW_HEIGHT
         end
-        local itemRow = rf.itemRows[j]
-        itemRow:SetPoint("TOP", listArea, "TOP", 0, -y)
-
-        local _, _, _, qualityHex = S.GetItemQualityColor(item.quality)
-        itemRow.itemText:SetText(qualityHex .. "[" .. item.itemName .. "]|r")
-        itemRow.playerText:SetText("|cffffffff-> " .. item.player .. "|r")
-        itemRow.dkpText:SetText(tostring(item.dkp) .. " DKP")
-
-        itemRow:Show()
-        y = y + ITEM_ROW_HEIGHT
-
-        totalItems = totalItems + 1
-        totalDKP = totalDKP + (item.dkp or 0)
       end
     end
+  end
+
+  if R.scrollSlider and R.scrollSlider.UpdateRange then
+    R.scrollSlider.UpdateRange(totalContentHeight)
   end
 
   if R.statusText then
@@ -162,10 +200,6 @@ function R.RefreshList()
     R.statusText:SetText(
       totalRaids .. " raids | " .. allItems .. " items | Total spent: " .. allDKP .. " DKP"
     )
-  end
-
-  if R.scrollSlider and R.scrollSlider.UpdateRange then
-    R.scrollSlider.UpdateRange(y)
   end
 end
 
@@ -235,6 +269,10 @@ function R.CreateTab(parent)
   listArea:SetPoint("TOPLEFT", frame, "TOPLEFT", 4, -TOOLBAR_HEIGHT)
   listArea:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -4, STATUS_HEIGHT + 4)
   R.listArea = listArea
+
+  listArea.scrollCallback = function()
+    R.RefreshList()
+  end
 
   R.scrollSlider = S.SkinScrollBar(nil, listArea)
 

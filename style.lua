@@ -289,10 +289,9 @@ function S.SetFont(obj, size)
 end
 
 function S.CreateQuestionDialog(text, yesFunc, noFunc)
-  if GKPIQuestionDialog and GKPIQuestionDialog:IsShown() then
+  if GKPIQuestionDialog then
     GKPIQuestionDialog:Hide()
     GKPIQuestionDialog = nil
-    return
   end
 
   local d = CreateFrame("Frame", "GKPIQuestionDialog", UIParent)
@@ -336,9 +335,12 @@ function S.CreateQuestionDialog(text, yesFunc, noFunc)
 
   local close = CreateFrame("Button", nil, d)
   S.SkinCloseButton(close, d, -2, -2)
-  close:SetScript("OnClick", function() this:GetParent():Hide() end)
+  close:SetScript("OnClick", function()
+    if noFunc then noFunc() end
+    this:GetParent():Hide()
+  end)
 
-  d:SetWidth(250)
+  d:SetWidth(320)
   d:SetHeight(d.text:GetHeight() + 15 + 22 + 15 + 15)
 end
 

@@ -33,8 +33,8 @@ local function OnEnterWorld()
 
   GuildKPInfo.Style.Initialize()
   GuildKPInfo.UI.CreateMinimapButton()
-  GuildKPInfo.UI.CreateMainWindow()
   GuildKPInfo.Members.RestoreSettings()
+  GuildKPInfo.UI.CreateMainWindow()
 
   eventFrame:RegisterEvent("GUILD_ROSTER_UPDATE")
   eventFrame:RegisterEvent("RAID_ROSTER_UPDATE")
@@ -90,6 +90,43 @@ local function OnZoneChange()
   end
 end
 
+local pendingItems = {}
+
+local function ShiftPending()
+  local val = pendingItems[1]
+  local n = table.getn(pendingItems)
+  for i = 2, n do
+    pendingItems[i - 1] = pendingItems[i]
+  end
+  pendingItems[n] = nil
+  return val
+end
+
+local function ProcessNextPendingItem()
+  if table.getn(pendingItems) == 0 then return end
+
+  local entry = ShiftPending()
+  local S = GuildKPInfo.Style
+  local _, _, _, qualityHex = S.GetItemQualityColor(entry.quality)
+
+  local dialogText = "Register this loot?\n\n" ..
+    qualityHex .. "[" .. entry.itemName .. "]|r  ->  |cffffffff" .. entry.player .. "|r\n" ..
+    "|cffffd100" .. entry.dkp .. " DKP|r  |  By: |cff999999" .. entry.sender .. "|r"
+
+  S.CreateQuestionDialog(dialogText,
+    function()
+      GuildKPInfo.Core.AddItemToRaid(entry)
+      if GuildKPInfo.UI.mainFrame and GuildKPInfo.UI.mainFrame:IsShown() and GuildKPInfo.UI.activeTab == 2 then
+        GuildKPInfo.Raids.RefreshList()
+      end
+      ProcessNextPendingItem()
+    end,
+    function()
+      ProcessNextPendingItem()
+    end
+  )
+end
+
 local function OnRaidChat()
   if not GuildKPInfo.Core.inRaid then return end
 
@@ -99,8 +136,9 @@ local function OnRaidChat()
 
   local entry = GuildKPInfo.Core.ParseRaidChat(msg, sender)
   if entry then
-    if GuildKPInfo.UI.mainFrame and GuildKPInfo.UI.mainFrame:IsShown() and GuildKPInfo.UI.activeTab == 2 then
-      GuildKPInfo.Raids.RefreshList()
+    pendingItems[table.getn(pendingItems) + 1] = entry
+    if not (GKPIQuestionDialog and GKPIQuestionDialog:IsShown()) then
+      ProcessNextPendingItem()
     end
   end
 end

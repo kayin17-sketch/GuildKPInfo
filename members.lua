@@ -84,7 +84,6 @@ end
 local function CreateColumnHeaders(parent)
   local S = GuildKPInfo.Style
 M.headerButtons = {}
-M.onlineOnly = false
 
   for i = 1, table.getn(COLUMNS) do
     local col = COLUMNS[i]

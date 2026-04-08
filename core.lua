@@ -125,36 +125,35 @@ function C.ParseRaidChat(msg, sender)
   local itemName, itemID, quality = ExtractItemInfo(msg)
   if not itemName then return nil end
 
+  local cleanMsg = gsub(msg, "|c%x%x%x%x%x%x%x%x", "")
+  cleanMsg = gsub(cleanMsg, "|Hitem:.-|h%[(.-)%]|h", "%1")
+  cleanMsg = gsub(cleanMsg, "|r", "")
+
   local dkp = 0
-  local _, dkpPos = strfind(msg, "[Dd][Kk][Pp]")
-  if dkpPos then
-    local afterDKP = strsub(msg, dkpPos + 1)
+  local _, dkpEnd = strfind(cleanMsg, "[Dd][Kk][Pp]")
+  if dkpEnd then
+    local afterDKP = strsub(cleanMsg, dkpEnd + 1)
     local _, _, dkpStr = strfind(afterDKP, "(%d+)")
     if dkpStr then
       dkp = tonumber(dkpStr) or 0
     else
-      local beforeDKP = strsub(msg, 1, dkpPos)
-      local _, bStart = strfind(beforeDKP, "(%d+)")
-      if bStart then
-        local _, _, dkpStr2 = strfind(strsub(beforeDKP, 1, bStart), "(%d+)")
-        if not dkpStr2 then
-          for num in string.gfind(beforeDKP, "(%d+)") do
-            dkpStr2 = num
-          end
-        end
-        if dkpStr2 then dkp = tonumber(dkpStr2) or 0 end
+      local beforeDKP = strsub(cleanMsg, 1, dkpEnd - 1)
+      local lastNum = nil
+      for num in string.gfind(beforeDKP, "(%d+)") do
+        lastNum = num
       end
+      if lastNum then dkp = tonumber(lastNum) or 0 end
     end
-  else
-    local _, _, dkpStr = strfind(msg, "(%d+)")
-    if dkpStr then dkp = tonumber(dkpStr) or 0 end
   end
 
   local player = sender or "Unknown"
-
-  local _, _, mentionedPlayer = strfind(msg, "(%a+).-|Hitem:")
-  if mentionedPlayer and strlen(mentionedPlayer) >= 3 then
-    player = mentionedPlayer
+  local _, _, p1 = strfind(cleanMsg, "%sto%s+(%a+)")
+  if not p1 then _, _, p1 = strfind(cleanMsg, "%spor%s+(%a+)") end
+  if not p1 then _, _, p1 = strfind(cleanMsg, "->%s*(%a+)") end
+  if not p1 then _, _, p1 = strfind(cleanMsg, "(%a+)%s+bids") end
+  if not p1 then _, _, p1 = strfind(cleanMsg, "(%a+)%s+offers") end
+  if p1 and strlen(p1) >= 3 then
+    player = p1
   end
 
   local _, _, link = strfind(msg, "(|Hitem:.-|h%[.-%]|h)")
@@ -172,9 +171,13 @@ function C.ParseRaidChat(msg, sender)
 
   if not C.activeRaid then return nil end
 
-  C.activeRaid.items[table.getn(C.activeRaid.items) + 1] = entry
-
   return entry
+end
+
+function C.AddItemToRaid(entry)
+  if not C.activeRaid then return false end
+  C.activeRaid.items[table.getn(C.activeRaid.items) + 1] = entry
+  return true
 end
 
 local RAID_ZONES = {
