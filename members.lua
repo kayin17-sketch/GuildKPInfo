@@ -314,8 +314,6 @@ function M.CreateTab(parent)
   S.SkinButton(scanBtn, 0.3, 1.0, 0.8)
   scanBtn:SetScript("OnClick", function()
     GuildRoster()
-    GuildKPInfo.Core.RefreshGuildData()
-    M.RefreshList()
   end)
 
   local classDropdown = CreateFrame("Frame", "GKPIClassFilter", frame, "UIDropDownMenuTemplate")
