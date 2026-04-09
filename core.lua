@@ -147,14 +147,18 @@ function C.ParseRaidChat(msg, sender)
   end
 
   local player = sender or "Unknown"
-  local _, _, p1 = strfind(cleanMsg, "%S+%s+(%S+)%s+bid%s")
-  if not p1 then _, _, p1 = strfind(cleanMsg, "%sto%s+(%a+)") end
-  if not p1 then _, _, p1 = strfind(cleanMsg, "%spor%s+(%a+)") end
-  if not p1 then _, _, p1 = strfind(cleanMsg, "->%s*(%a+)") end
-  if not p1 then _, _, p1 = strfind(cleanMsg, "(%a+)%s+bids") end
-  if not p1 then _, _, p1 = strfind(cleanMsg, "(%a+)%s+offers") end
-  if p1 and strlen(p1) >= 3 then
-    player = p1
+  local _, _, p1 = strfind(cleanMsg, "sold%s+to%s+(%S+)")
+  if not p1 then _, _, p1 = strfind(cleanMsg, "goes%s+to%s+(%S+)") end
+  if not p1 then _, _, p1 = strfind(cleanMsg, "%sto%s+(%S+)") end
+  if not p1 then _, _, p1 = strfind(cleanMsg, "%spor%s+(%S+)") end
+  if not p1 then _, _, p1 = strfind(cleanMsg, "->%s*(%S+)") end
+  if not p1 then _, _, p1 = strfind(cleanMsg, "(%S+)%s+bids") end
+  if not p1 then _, _, p1 = strfind(cleanMsg, "(%S+)%s+offers") end
+  if p1 then
+    p1 = gsub(p1, "[%.,;:]$", "")
+    if strlen(p1) >= 3 then
+      player = p1
+    end
   end
 
   local _, _, linkCore = strfind(msg, "|Hitem:(.-)|h%[(.-)%]|h")
