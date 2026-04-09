@@ -156,7 +156,11 @@ function C.ParseRaidChat(msg, sender)
     player = p1
   end
 
-  local _, _, link = strfind(msg, "(|Hitem:.-|h%[.-%]|h)")
+  local _, _, linkCore = strfind(msg, "|Hitem:(.-)|h%[(.-)%]|h")
+  local cleanLink = nil
+  if linkCore then
+    cleanLink = "|Hitem:" .. linkCore .. "|h[" .. itemName .. "]|h"
+  end
 
   local entry = {
     itemName = itemName,
@@ -166,7 +170,7 @@ function C.ParseRaidChat(msg, sender)
     dkp = dkp,
     time = date("%H:%M:%S"),
     sender = sender or "",
-    itemLink = link or msg
+    itemLink = cleanLink or ""
   }
 
   if not C.activeRaid then return nil end
