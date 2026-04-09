@@ -147,7 +147,8 @@ function C.ParseRaidChat(msg, sender)
   end
 
   local player = sender or "Unknown"
-  local _, _, p1 = strfind(cleanMsg, "%sto%s+(%a+)")
+  local _, _, p1 = strfind(cleanMsg, "%S+%s+(%S+)%s+bid%s")
+  if not p1 then _, _, p1 = strfind(cleanMsg, "%sto%s+(%a+)") end
   if not p1 then _, _, p1 = strfind(cleanMsg, "%spor%s+(%a+)") end
   if not p1 then _, _, p1 = strfind(cleanMsg, "->%s*(%a+)") end
   if not p1 then _, _, p1 = strfind(cleanMsg, "(%a+)%s+bids") end

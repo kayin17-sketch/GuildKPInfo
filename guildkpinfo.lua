@@ -127,12 +127,20 @@ local function ProcessNextPendingItem()
   )
 end
 
+local lastChatMsg = ""
+local lastChatTime = 0
+
 local function OnRaidChat()
   if not GuildKPInfo.Core.inRaid then return end
 
   local msg = arg1
   local sender = arg2
   if not msg then return end
+
+  local now = GetTime()
+  if msg == lastChatMsg and (now - lastChatTime) < 3 then return end
+  lastChatMsg = msg
+  lastChatTime = now
 
   local entry = GuildKPInfo.Core.ParseRaidChat(msg, sender)
   if entry then
